@@ -10,6 +10,7 @@ pub struct PickerInput {
 	pub all_entries: Vec<HistoryEntry>,
 	pub context_lines: usize,
 	pub home_dir: Option<String>,
+	pub verbose: bool,
 }
 
 pub struct DisplayEntry {
@@ -159,38 +160,30 @@ fn render_menu(input: &PickerInput) {
 	let count = input.items.len();
 	let number_width = if count >= 100 { 3 } else if count >= 10 { 2 } else { 1 };
 
-	let max_directory_width = input
-		.items
-		.iter()
-		.map(|item| item.directory_display.len())
-		.max()
-		.unwrap_or(0)
-		.min(30);
-
 	let terminal_width = std::env::var("COLUMNS")
 		.ok()
 		.and_then(|value| value.parse::<usize>().ok())
 		.unwrap_or(80);
 
-	let overhead = number_width + 2 + max_directory_width + 2 + 12 + 4;
-	let command_width = terminal_width.saturating_sub(overhead).max(20);
-
 	writeln!(stderr).ok();
-	for (index, item) in input.items.iter().enumerate() {
-		let command_display = truncate(&item.command, command_width);
-		let directory_display = truncate(&item.directory_display, max_directory_width);
-		writeln!(
-			stderr,
-			" {:>nw$}) {:<cw$}  {:<dw$}  {}",
-			index + 1,
-			command_display,
-			directory_display,
-			item.timestamp_display,
-			nw = number_width,
-			cw = command_width,
-			dw = max_directory_width,
-		).ok();
+
+	if input.verbose {
+		for (index, item) in input.items.iter().enumerate() {
+			let command_width = terminal_width.saturating_sub(number_width + 2).max(20);
+			let command_display = truncate(&item.command, command_width);
+			let indent: String = " ".repeat(number_width + 2);
+			writeln!(stderr, " {:>nw$}) {}", index + 1, command_display, nw = number_width).ok();
+			writeln!(stderr, "{}  {}", indent, item.timestamp_display).ok();
+			writeln!(stderr, "{}  {}", indent, item.directory_display).ok();
+		}
+	} else {
+		let command_width = terminal_width.saturating_sub(number_width + 2).max(20);
+		for (index, item) in input.items.iter().enumerate() {
+			let command_display = truncate(&item.command, command_width);
+			writeln!(stderr, " {:>nw$}) {}", index + 1, command_display, nw = number_width).ok();
+		}
 	}
+
 	writeln!(stderr).ok();
 	write!(stderr, " pick (c=context, q=quit): ").ok();
 	stderr.flush().ok();

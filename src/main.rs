@@ -38,6 +38,10 @@ struct Cli {
 	#[arg(short = 'a', long)]
 	all: bool,
 
+	/// Show timestamps and directories
+	#[arg(short = 'v', long)]
+	verbose: bool,
+
 	/// Surrounding commands to show in context mode
 	#[arg(long)]
 	context_lines: Option<usize>,
@@ -83,11 +87,10 @@ fn main() {
 		.iter()
 		.map(|entry| {
 			let directory_display = abbreviate_home(&entry.directory, &home_dir);
-			let timestamp_display = shorten_timestamp(&entry.timestamp);
 			DisplayEntry {
 				command: entry.command.clone(),
 				directory_display,
-				timestamp_display,
+				timestamp_display: entry.timestamp.clone(),
 				tail_index: entry.tail_index,
 			}
 		})
@@ -98,6 +101,7 @@ fn main() {
 		all_entries,
 		context_lines,
 		home_dir,
+		verbose: cli.verbose,
 	};
 
 	picker::run(&picker_input);
@@ -113,13 +117,4 @@ fn abbreviate_home(path: &str, home_dir: &Option<String>) -> String {
 		}
 	}
 	path.to_string()
-}
-
-fn shorten_timestamp(timestamp: &str) -> String {
-	if let Some((_date, time)) = timestamp.split_once(' ') {
-		if let Some(short_time) = time.get(..5) {
-			return short_time.to_string();
-		}
-	}
-	timestamp.to_string()
 }

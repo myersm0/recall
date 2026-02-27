@@ -110,7 +110,7 @@ pub fn filter(
 	prefix: bool,
 ) -> Vec<HistoryEntry> {
 	let current_directory = if prefix {
-		std::env::current_dir().ok().map(|p| p.to_string_lossy().to_string())
+		std::env::var("PWD").ok()
 	} else {
 		None
 	};
