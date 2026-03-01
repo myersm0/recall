@@ -12,7 +12,7 @@ _recall_log_command() {
 	timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 	local current_dir="$PWD"
 	local cmd
-	cmd=$(history 1 | sed 's/^[ ]*[0-9]\+[ ]*//')
+	cmd=$(history 1 | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]*//')
 
 	local dir_encoded cmd_encoded
 	dir_encoded=$(printf '%s' "$current_dir" | base64 | tr -d '\n')
