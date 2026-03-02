@@ -24,13 +24,13 @@ Displays a numbered menu of matching commands from your history. Type a number t
 ### Examples
 
 ```bash
-recall                  # browse recent history
-recall git              # commands matching "git"
-recall -p               # commands run under the current directory tree
-recall -d myproject     # commands run in directories matching "myproject"
-recall docker -n 25     # show up to 25 results
-recall -v               # verbose mode -- include timestamps and directories
-recall -H 5000          # recall with a history context size of 5000 (how deep in history to read)
+recall                     # browse recent history
+recall git                 # commands matching "git"
+recall -p                  # commands run under the current directory tree
+recall -d myproject        # commands run in directories matching "myproject"
+recall "my pattern" -n 25  # show up to 25 results matching regex "my pattern"
+recall -v                  # verbose mode -- include timestamps and directories
+recall -H 5000             # recall with a history context size of 5000 (how deep in history to read)
 ```
 
 ### Flags
