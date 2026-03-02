@@ -193,11 +193,17 @@ fn handle_selection(input: &PickerInput, index: usize, mode: &Mode) {
 	let item = &input.items[index];
 	match mode {
 		Mode::Select => {
-			if clipboard::yank(&item.command) {
-				eprintln!(" yanked: {}", item.command);
-			} else {
-				eprintln!(" (no clipboard tool found)");
-				eprintln!(" {}", item.command);
+			match clipboard::yank(&item.command) {
+				clipboard::YankResult::Success => {
+					eprintln!(" yanked: {}", item.command);
+				}
+				clipboard::YankResult::Osc52 => {
+					eprintln!(" yanked (via terminal): {}", item.command);
+				}
+				clipboard::YankResult::Failure(hint) => {
+					eprintln!(" clipboard unavailable: {}", hint);
+					eprintln!(" {}", item.command);
+				}
 			}
 		}
 		Mode::Context => {
